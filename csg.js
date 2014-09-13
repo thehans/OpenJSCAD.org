@@ -3163,19 +3163,25 @@ CSG.PolygonTreeNode.prototype = {
 	},
 
 	getPolygons: function(result) {
-		if(this.polygon) {
-			// the polygon hasn't been broken yet. We can ignore the children and return our polygon:
-			result.push(this.polygon);
-		} else {
-			// our polygon has been split up and broken, so gather all subpolygons from the children:
-			var childpolygons = [];
-			this.children.map(function(child) {
-				child.getPolygons(childpolygons);
-			});
-			childpolygons.map(function(p) {
-				result.push(p);
-			});
-		}
+		var node = this, queue = [];
+
+		do {
+            if(node.polygon) {
+                // the polygon hasn't been broken yet. We can ignore the children and return our polygon:
+                result.push(node.polygon);
+            } else {
+                // our polygon has been split up and broken, so gather all subpolygons from the children:
+                var childpolygons = [];
+                node.children.map(function(child) {
+                    queue.push(child);
+                });
+                childpolygons.map(function(p) {
+                    result.push(p);
+                });
+            }
+
+			node = queue.pop();
+		} while(typeof(node) !== 'undefined');
 	},
 
 	// split the node by a plane; add the resulting nodes to the frontnodes and backnodes array
@@ -3183,64 +3189,66 @@ CSG.PolygonTreeNode.prototype = {
 	// If the plane does intersect the polygon, two new child nodes are created for the front and back fragments,
 	//  and added to both arrays.
 	splitByPlane: function(plane, coplanarfrontnodes, coplanarbacknodes, frontnodes, backnodes) {
-		var children = this.children;
-		var numchildren = children.length;
-		if(numchildren > 0) {
-			// if we have children, split the children
-			for(var i = 0; i < numchildren; i++) {
-				children[i].splitByPlane(plane, coplanarfrontnodes, coplanarbacknodes, frontnodes, backnodes);
-			}
-		} else {
-			// no children. Split the polygon:
-			var polygon = this.polygon;
-			if(polygon) {
-				var bound = polygon.boundingSphere();
-				var sphereradius = bound[1] + 1e-4;
-				var planenormal = plane.normal;
-				var spherecenter = bound[0];
-				var d = planenormal.dot(spherecenter) - plane.w;
-				if(d > sphereradius) {
-					frontnodes.push(this);
-				} else if(d < -sphereradius) {
-					backnodes.push(this);
-				} else {
-					var splitresult = plane.splitPolygon(polygon);
-					switch(splitresult.type) {
-					case 0:
-						// coplanar front:
-						coplanarfrontnodes.push(this);
-						break;
+		var node = this, queue = [], push = Array.prototype.push;
 
-					case 1:
-						// coplanar back:
-						coplanarbacknodes.push(this);
-						break;
+		do {
+			var children = node.children;
+			if(children.length) {
+				push.apply(queue, children);
+			} else {
+				// no children. Split the polygon:
+				var polygon = node.polygon;
+				if(polygon) {
+					var bound = polygon.boundingSphere();
+					var sphereradius = bound[1] + 1e-4;
+					var planenormal = plane.normal;
+					var spherecenter = bound[0];
+					var d = planenormal.dot(spherecenter) - plane.w;
+					if(d > sphereradius) {
+						frontnodes.push(node);
+					} else if(d < -sphereradius) {
+						backnodes.push(node);
+					} else {
+						var splitresult = plane.splitPolygon(polygon);
+						switch(splitresult.type) {
+						case 0:
+							// coplanar front:
+							coplanarfrontnodes.push(node);
+							break;
 
-					case 2:
-						// front:
-						frontnodes.push(this);
-						break;
+						case 1:
+							// coplanar back:
+							coplanarbacknodes.push(node);
+							break;
 
-					case 3:
-						// back:
-						backnodes.push(this);
-						break;
+						case 2:
+							// front:
+							frontnodes.push(node);
+							break;
 
-					case 4:
-						// spanning:
-						if(splitresult.front) {
-							var frontnode = this.addChild(splitresult.front);
-							frontnodes.push(frontnode);
+						case 3:
+							// back:
+							backnodes.push(node);
+							break;
+
+						case 4:
+							// spanning:
+							if(splitresult.front) {
+								var frontnode = node.addChild(splitresult.front);
+								frontnodes.push(frontnode);
+							}
+							if(splitresult.back) {
+								var backnode = node.addChild(splitresult.back);
+								backnodes.push(backnode);
+							}
+							break;
 						}
-						if(splitresult.back) {
-							var backnode = this.addChild(splitresult.back);
-							backnodes.push(backnode);
-						}
-						break;
 					}
 				}
 			}
-		}
+			node = queue.pop();
+		}while (typeof(node) !== 'undefined');
+
 	},
 
 
@@ -3258,20 +3266,22 @@ CSG.PolygonTreeNode.prototype = {
 	},
 
 	invertSub: function() {
-		if(this.polygon) {
-			this.polygon = this.polygon.flipped();
-		}
-		this.children.map(function(child) {
-			child.invertSub();
-		});
+		var node = this, queue = [], push = Array.prototype.push;
+		do {
+			if(node.polygon) {
+				node.polygon = node.polygon.flipped();
+			}
+			push.apply(queue, node.children);
+
+			node = queue.pop();
+		} while(typeof(node) !== 'undefined');
 	},
 
 	recursivelyInvalidatePolygon: function() {
-		if(this.polygon) {
-			this.polygon = null;
-			if(this.parent) {
-				this.parent.recursivelyInvalidatePolygon();
-			}
+		var node = this;
+		while (node.polygon) {
+			node.polygon = null;
+			if (node.parent) node = node.parent;
 		}
 	}
 };
@@ -3335,95 +3345,107 @@ CSG.Node = function(parent) {
 CSG.Node.prototype = {
 	// Convert solid space to empty space and empty space to solid space.
 	invert: function() {
-		if(this.plane) this.plane = this.plane.flipped();
-		if(this.front) this.front.invert();
-		if(this.back) this.back.invert();
-		var temp = this.front;
-		this.front = this.back;
-		this.back = temp;
+		var node = this, queue = [];
+		do {
+			if(node.plane) node.plane = node.plane.flipped();
+			if(node.front) queue.push(node.front);
+			if(node.back) queue.push(node.back);
+			var temp = node.front;
+			node.front = node.back;
+			node.back = temp;
+
+			node = queue.pop();
+		} while(typeof(node) !== 'undefined');
 	},
 
 	// clip polygontreenodes to our plane
 	// calls remove() for all clipped PolygonTreeNodes
 	clipPolygons: function(polygontreenodes, alsoRemovecoplanarFront) {
-		if(this.plane) {
-			var backnodes = [];
-			var frontnodes = [];
-			var coplanarfrontnodes = alsoRemovecoplanarFront ? backnodes : frontnodes;
-			var plane = this.plane;
-			var numpolygontreenodes = polygontreenodes.length;
-			for(var i = 0; i < numpolygontreenodes; i++) {
-				var node = polygontreenodes[i];
-				if(!node.isRemoved()) {
-					node.splitByPlane(plane, coplanarfrontnodes, backnodes, frontnodes, backnodes);
-				}
-			}
-			if(this.front && (frontnodes.length > 0)) {
-				this.front.clipPolygons(frontnodes, alsoRemovecoplanarFront);
-			}
-			var numbacknodes = backnodes.length;
-			if(this.back && (numbacknodes > 0)) {
-				this.back.clipPolygons(backnodes, alsoRemovecoplanarFront);
-			} else {
-				// there's nothing behind this plane. Delete the nodes behind this plane:
-				for(var i = 0; i < numbacknodes; i++) {
-					backnodes[i].remove();
-				}
-			}
-		}
+        var args = {'node': this, 'polygontreenodes': polygontreenodes }
+		var node;
+		var queue = [];
+        // nsr1 
+        do { 
+            node = args.node;
+            polygontreenodes = args.polygontreenodes;
+
+            // begin "function"
+            if(node.plane) {
+                var backnodes = [];
+                var frontnodes = [];
+                var coplanarfrontnodes = alsoRemovecoplanarFront ? backnodes : frontnodes;
+                var plane = node.plane;
+                var numpolygontreenodes = polygontreenodes.length;
+                for(var i = 0; i < numpolygontreenodes; i++) {
+                    var node = polygontreenodes[i];
+                    if(!node.isRemoved()) {
+                        node.splitByPlane(plane, coplanarfrontnodes, backnodes, frontnodes, backnodes);
+                    }
+                }
+                
+                if(node.front && (frontnodes.length > 0)) {
+                    queue.push({'node': node.front, 'polygontreenodes': frontnodes});
+                }
+                var numbacknodes = backnodes.length;
+                if (node.back && (numbacknodes > 0)) {
+                    queue.push({'node': node.back, 'polygontreenodes': backnodes});
+                } else {
+                    // there's nothing behind this plane. Delete the nodes behind this plane:
+                    for(var i = 0; i < numbacknodes; i++) {
+                        backnodes[i].remove();
+                    }
+                }
+            }
+            args = queue.pop();
+        } while (typeof(args) !== 'undefined');
 	},
 
 	// Remove all polygons in this BSP tree that are inside the other BSP tree
 	// `tree`.
 	clipTo: function(tree, alsoRemovecoplanarFront) {
-		if(this.polygontreenodes.length > 0) {
-			tree.rootnode.clipPolygons(this.polygontreenodes, alsoRemovecoplanarFront);
-		}
-		if(this.front) this.front.clipTo(tree, alsoRemovecoplanarFront);
-		if(this.back) this.back.clipTo(tree, alsoRemovecoplanarFront);
+        var node = this, queue = [];
+        do { 
+            if(node.polygontreenodes.length > 0) {
+                tree.rootnode.clipPolygons(node.polygontreenodes, alsoRemovecoplanarFront);
+            }
+            if(node.front) queue.push(node.front);
+            if(node.back) queue.push(node.back);
+            node = queue.pop();
+        } while(typeof(node) !== 'undefined');
 	},
 
 	addPolygonTreeNodes: function(polygontreenodes) {
-		if(polygontreenodes.length === 0) return;
-		var _this = this;
-		if(!this.plane) {
-			var bestplane = polygontreenodes[0].getPolygon().plane;
-			/*
-	  var parentnormals = [];
-	  this.getParentPlaneNormals(parentnormals, 6);
-//parentnormals = [];
-	  var numparentnormals = parentnormals.length;
-	  var minmaxnormal = 1.0;
-	  polygontreenodes.map(function(polygontreenode){
-		var plane = polygontreenodes[0].getPolygon().plane;
-		var planenormal = plane.normal;
-		var maxnormaldot = -1.0;
-		parentnormals.map(function(parentnormal){
-		  var dot = parentnormal.dot(planenormal);
-		  if(dot > maxnormaldot) maxnormaldot = dot;
-		});
-		if(maxnormaldot < minmaxnormal)
-		{
-		  minmaxnormal = maxnormaldot;
-		  bestplane = plane;
-		}
-	  });
-*/
-			this.plane = bestplane;
-		}
-		var frontnodes = [];
-		var backnodes = [];
-		polygontreenodes.map(function(polygontreenode) {
-			polygontreenode.splitByPlane(_this.plane, _this.polygontreenodes, backnodes, frontnodes, backnodes);
-		});
-		if(frontnodes.length > 0) {
-			if(!this.front) this.front = new CSG.Node(this);
-			this.front.addPolygonTreeNodes(frontnodes);
-		}
-		if(backnodes.length > 0) {
-			if(!this.back) this.back = new CSG.Node(this);
-			this.back.addPolygonTreeNodes(backnodes);
-		}
+        var args = {'node': this, 'polygontreenodes': polygontreenodes };
+		var node;
+		var queue = [];
+        do { 
+            node = args.node;
+            polygontreenodes = args.polygontreenodes;
+
+            if(polygontreenodes.length === 0) continue;
+            var _this = node;
+            if(!node.plane) {
+                var bestplane = polygontreenodes[0].getPolygon().plane;
+                node.plane = bestplane;
+            }
+            var frontnodes = [];
+            var backnodes = [];
+            
+            for (var i = 0, n = polygontreenodes.length ; i < n; ++i) {
+                polygontreenodes[i].splitByPlane(_this.plane, _this.polygontreenodes, backnodes, frontnodes, backnodes);
+            }
+            
+            if(frontnodes.length > 0) {
+                if(!node.front) node.front = new CSG.Node(node);
+                queue.push({'node': node.front, 'polygontreenodes': frontnodes});
+            }
+            if(backnodes.length > 0) {
+                if(!node.back) node.back = new CSG.Node(node);
+                queue.push({'node': node.back, 'polygontreenodes': backnodes});
+            }
+
+            args = queue.pop();
+        } while (typeof(args) !== 'undefined');
 	},
 
 	getParentPlaneNormals: function(normals, maxdepth) {
