@@ -1,3 +1,4 @@
+'use strict';
 /*
 ## License
 
@@ -422,43 +423,43 @@ CSG.prototype = {
 		result += "<object id=\"0\">\n<mesh>\n<vertices>\n";
 
 		this.polygons.map(function(p) {                  // first we dump all vertices of all polygons
-         for(var i=0; i<p.vertices.length; i++) {
-            result += p.vertices[i].toAMFString();
-         }
-      });
-      result += "</vertices>\n";
+		 for(var i=0; i<p.vertices.length; i++) {
+			result += p.vertices[i].toAMFString();
+		 }
+	  });
+	  result += "</vertices>\n";
 
-      var n = 0;
+	  var n = 0;
 		this.polygons.map(function(p) {                  // then we dump all polygons
-         result += "<volume>\n";
-         if(p.vertices.length<3) 
-            return;
+		 result += "<volume>\n";
+		 if(p.vertices.length<3) 
+			return;
 			var r = 1, g = 0.4, b = 1, a = 1, colorSet = false;
 			if(p.shared && p.shared.color) {
 				r = p.shared.color[0];
 				g = p.shared.color[1];
 				b = p.shared.color[2];
-            a = p.shared.color[3];
+			a = p.shared.color[3];
 				colorSet = true;
 			} else if(p.color) {
-            r = p.color[0];
-            g = p.color[1];
-            b = p.color[2];
-            if(p.color.length()>3) a = p.color[3];
+			r = p.color[0];
+			g = p.color[1];
+			b = p.color[2];
+			if(p.color.length()>3) a = p.color[3];
 				colorSet = true;
-         }
+		 }
 
    		result += "<color><r>"+r+"</r><g>"+g+"</g><b>"+b+"</b>"+(a!==undefined?"<a>"+a+"</a>":"")+"</color>";
 
-         for(var i=0; i<p.vertices.length-2; i++) {      // making sure they are all triangles (triangular polygons)
-            result += "<triangle>";
-            result += "<v1>" + (n) + "</v1>";
-            result += "<v2>" + (n+i+1) + "</v2>";
-            result += "<v3>" + (n+i+2) + "</v3>";
-            result += "</triangle>\n";
-         }
-         n += p.vertices.length;
-         result += "</volume>\n";
+		 for(var i=0; i<p.vertices.length-2; i++) {      // making sure they are all triangles (triangular polygons)
+			result += "<triangle>";
+			result += "<v1>" + (n) + "</v1>";
+			result += "<v2>" + (n+i+1) + "</v2>";
+			result += "<v3>" + (n+i+2) + "</v3>";
+			result += "</triangle>\n";
+		 }
+		 n += p.vertices.length;
+		 result += "</volume>\n";
 		});
 		result += "</mesh>\n</object>\n";
 		result += "</amf>\n";
@@ -630,24 +631,24 @@ CSG.prototype = {
 				byteoffset += 50;
 			}
 		});
-      if(p&&p.webBlob) {      // -- want a blob direct
+	  if(p&&p.webBlob) {      // -- want a blob direct
 			return new Blob([headerarray.buffer, ar1.buffer, allTrianglesBuffer], {
 			   type: "application/sla"
 			});
-      } else {
-         // we differentiate, as binary string blobbing gives bad blob in web, we need binary string for CLI
-         //    perhaps there is a way to make it working (see openjscad for stlb)\
-         //
-         // concat 3 buffers together -- don't make blob so early, we want data (non-blob) for nodejs too
-         //    must be string data direct to write
-         var stl = new Uint8Array(headerarray.buffer.byteLength + ar1.buffer.byteLength + allTrianglesBuffer.byteLength);
-         var j = 0;
-         for(var i=0; i<headerarray.buffer.byteLength; i++) { stl.buffer[j++] = headerarray.buffer[i]; }
-         for(var i=0; i<ar1.buffer.byteLength; i++) { stl.buffer[j++] = ar1.buffer[i]; }
-         for(var i=0; i<allTrianglesBuffer.byteLength; i++) { stl.buffer[j++] = allTrianglesBuffer[i]; }
-         return String.fromCharCode.apply(null, new Uint8Array(stl.buffer)); 
-         
-      }   
+	  } else {
+		 // we differentiate, as binary string blobbing gives bad blob in web, we need binary string for CLI
+		 //    perhaps there is a way to make it working (see openjscad for stlb)\
+		 //
+		 // concat 3 buffers together -- don't make blob so early, we want data (non-blob) for nodejs too
+		 //    must be string data direct to write
+		 var stl = new Uint8Array(headerarray.buffer.byteLength + ar1.buffer.byteLength + allTrianglesBuffer.byteLength);
+		 var j = 0;
+		 for(i=0; i<headerarray.buffer.byteLength; i++) { stl.buffer[j++] = headerarray.buffer[i]; }
+		 for(i=0; i<ar1.buffer.byteLength; i++) { stl.buffer[j++] = ar1.buffer[i]; }
+		 for(i=0; i<allTrianglesBuffer.byteLength; i++) { stl.buffer[j++] = allTrianglesBuffer[i]; }
+		 return String.fromCharCode.apply(null, new Uint8Array(stl.buffer)); 
+		 
+	  }   
 	},
 
 	toString: function() {
@@ -659,12 +660,12 @@ CSG.prototype = {
 	},
 
    center: function(c) {
-      if(!c.length) c = [c,c,c];
-      var b = this.getBounds();
-      return this.translate([
-         c[0]?-(b[1].x-b[0].x)/2-b[0].x:0,
-         c[1]?-(b[1].y-b[0].y)/2-b[0].y:0,
-         c[2]?-(b[1].z-b[0].z)/2-b[0].z:0]);
+	  if(!c.length) c = [c,c,c];
+	  var b = this.getBounds();
+	  return this.translate([
+		 c[0]?-(b[1].x-b[0].x)/2-b[0].x:0,
+		 c[1]?-(b[1].y-b[0].y)/2-b[0].y:0,
+		 c[2]?-(b[1].z-b[0].z)/2-b[0].z:0]);
    },
 
 	// Expand the solid
@@ -694,8 +695,11 @@ CSG.prototype = {
 	//   the result is a true expansion of the solid
 	//   If false, returns only the shell
 	expandedShell: function(radius, resolution, unionWithThis) {
+	var i, iMax;
 		var csg = this.reTesselated();
 		var result;
+	var angle;
+	var si, co;
 		if(unionWithThis) {
 			result = csg;
 		} else {
@@ -720,7 +724,7 @@ CSG.prototype = {
 			var numvertices = polygon.vertices.length;
 			var prevvertex = polygon.vertices[numvertices - 1];
 			var prevvertextag = prevvertex.getTag();
-			for(var i = 0; i < numvertices; i++) {
+			for(i = 0; i < numvertices; i++) {
 				var vertex = polygon.vertices[i];
 				var vertextag = vertex.getTag();
 				var vertextagpair;
@@ -766,16 +770,17 @@ CSG.prototype = {
 				angles = [];
 
 			// first of all equally spaced around the cylinder:
-			for(var i = 0; i < resolution; i++) {
+			for(i = 0; i < resolution; i++) {
 				angles.push(i * Math.PI * 2 / resolution);
 			}
 
 			// and also at every normal of all touching planes:
-			for(var i = 0, iMax = vertexpair.planenormals.length; i < iMax; i++) {
-				var planenormal = vertexpair.planenormals[i],
-					si = ybase.dot(planenormal),
-					co = xbase.dot(planenormal),
-					angle = Math.atan2(si, co);
+			for(i = 0, iMax = vertexpair.planenormals.length; i < iMax; i++) {
+				var planenormal = vertexpair.planenormals[i];
+
+				si = ybase.dot(planenormal);
+				co = xbase.dot(planenormal);
+				angle = Math.atan2(si, co);
 
 				if(angle < 0) angle += Math.PI * 2;
 				angles.push(angle);
@@ -790,18 +795,21 @@ CSG.prototype = {
 
 			// Now construct the cylinder by traversing all angles:
 			var numangles = angles.length,
-				prevp1, prevp2,
+				prevp1, prevp2, p,
 				startfacevertices = [],
 				endfacevertices = [],
 				polygons = [];
-			for(var i = -1; i < numangles; i++) {
-				var angle = angles[(i < 0) ? (i + numangles) : i],
-					si = Math.sin(angle),
-					co = Math.cos(angle),
-					p = xbase.times(co * radius).plus(ybase.times(si * radius)),
-					p1 = startpoint.plus(p),
-					p2 = endpoint.plus(p),
-					skip = false;
+			for(i = -1; i < numangles; i++) {
+				angle = angles[(i < 0) ? (i + numangles) : i];
+				
+				si = Math.sin(angle);
+				co = Math.cos(angle);
+
+				p = xbase.times(co * radius).plus(ybase.times(si * radius)),
+				p1 = startpoint.plus(p),
+				p2 = endpoint.plus(p),
+				skip = false;
+
 				if(i >= 0) {
 					if(p1.distanceTo(prevp1) < 1e-5) {
 						skip = true;
@@ -860,7 +868,7 @@ CSG.prototype = {
 			// and find a suitable z axis. We will use the normal which is most perpendicular to the x axis:
 			var bestzaxis = null;
 			var bestzaxisorthogonality = 0;
-			for(var i = 1; i < vertexobj.normals.length; i++) {
+			for(i = 1; i < vertexobj.normals.length; i++) {
 				var normal = vertexobj.normals[i].unit();
 				var cross = xaxis.cross(normal);
 				var crosslength = cross.length();
@@ -967,14 +975,14 @@ CSG.prototype = {
 		} else {
 			var mybounds = this.getBounds();
 			var otherbounds = csg.getBounds();
-         // [0].x/y  
-         //    +-----+
-         //    |     |
-         //    |     |
-         //    +-----+ 
-         //          [1].x/y
-         //return false;
-         //echo(mybounds,"=",otherbounds);
+		 // [0].x/y  
+		 //    +-----+
+		 //    |     |
+		 //    |     |
+		 //    +-----+ 
+		 //          [1].x/y
+		 //return false;
+		 //echo(mybounds,"=",otherbounds);
 			if(mybounds[1].x < otherbounds[0].x) return false;
 			if(mybounds[0].x > otherbounds[1].x) return false;
 			if(mybounds[1].y < otherbounds[0].y) return false;
@@ -1053,7 +1061,7 @@ CSG.prototype = {
 	 * @return {CSG} new CSG instance
 	 */
 	setColor: function(red, green, blue, alpha) { //for backward compatibility
-		var color = red instanceof Array ? red : [red||0, green||0, blue||0, isNaN(alpha) ? 1. : alpha];
+		var color = red instanceof Array ? red : [red||0, green||0, blue||0, isNaN(alpha) ? 1.0 : alpha];
 		var newshared = new CSG.Polygon.Shared(color);
 		return this.setShared(newshared);
 	},
@@ -1110,14 +1118,15 @@ CSG.prototype = {
 			vertexData = new Float64Array(numvertices * 3),
 			planeData = new Float64Array(numplanes * 4),
 			polygonVerticesIndex = 0;
-		for(var polygonindex = 0; polygonindex < numpolygons; ++polygonindex) {
-			var p = csg.polygons[polygonindex];
-			numVerticesPerPolygon[polygonindex] = p.vertices.length;
-			p.vertices.map(function(v) {
+		var func1 = function(v) {
 				var vertextag = v.getTag();
 				var vertexindex = vertexmap[vertextag];
 				polygonVertices[polygonVerticesIndex++] = vertexindex;
-			});
+			};
+		for(polygonindex = 0; polygonindex < numpolygons; ++polygonindex) {
+			var p = csg.polygons[polygonindex];
+			numVerticesPerPolygon[polygonindex] = p.vertices.length;
+			p.vertices.map(func1);
 			var planetag = p.plane.getTag();
 			var planeindex = planemap[planetag];
 			polygonPlaneIndexes[polygonindex] = planeindex;
@@ -1208,6 +1217,7 @@ CSG.prototype = {
 			var minheight = 0;
 			var maxdotz = 0;
 			var besttransformation;
+			var planeconnector;
 			for(var planetag in planemap) {
 				var plane = planemap[planetag];
 				var pointonplane = plane.normal.times(plane.w);
@@ -1219,11 +1229,11 @@ CSG.prototype = {
 				var yorthogonality = plane.normal.cross(yvector).length();
 				if(xorthogonality > yorthogonality) {
 					// x is better:
-					var planeconnector = new CSG.Connector(pointonplane, plane.normal, xvector);
+					planeconnector = new CSG.Connector(pointonplane, plane.normal, xvector);
 					transformation = planeconnector.getTransformationTo(z0connectorx, false, 0);
 				} else {
 					// y is better:
-					var planeconnector = new CSG.Connector(pointonplane, plane.normal, yvector);
+					planeconnector = new CSG.Connector(pointonplane, plane.normal, yvector);
 					transformation = planeconnector.getTransformationTo(z0connectory, false, 0);
 				}
 				var transformedcsg = csg.transform(transformation);
@@ -1308,8 +1318,9 @@ CSG.prototype = {
 	fixTJunctions: function() {
 		var csg = this.canonicalized();
 		var sidemap = {};
+		var polygon;
 		for(var polygonindex = 0; polygonindex < csg.polygons.length; polygonindex++) {
-			var polygon = csg.polygons[polygonindex];
+			polygon = csg.polygons[polygonindex];
 			var numvertices = polygon.vertices.length;
 			if(numvertices >= 3) // should be true
 			{
@@ -1320,7 +1331,7 @@ CSG.prototype = {
 					if(nextvertexindex == numvertices) nextvertexindex = 0;
 					var nextvertex = polygon.vertices[nextvertexindex];
 					var nextvertextag = nextvertex.getTag();
-					var sidetag = vertextag + "/" + nextvertextag;
+					sidetag = vertextag + "/" + nextvertextag;
 					var reversesidetag = nextvertextag + "/" + vertextag;
 					if(reversesidetag in sidemap) {
 						// this side matches the same side in another polygon. Remove from sidemap:
@@ -1330,7 +1341,7 @@ CSG.prototype = {
 							delete sidemap[reversesidetag];
 						}
 					} else {
-						var sideobj = {
+						sideobj = {
 							vertex0: vertex,
 							vertex1: nextvertex,
 							polygonindex: polygonindex
@@ -1352,10 +1363,7 @@ CSG.prototype = {
 		var vertextag2sideend = {};
 		var sidestocheck = {};
 		var sidemapisempty = true;
-		for(var sidetag in sidemap) {
-			sidemapisempty = false;
-			sidestocheck[sidetag] = true;
-			sidemap[sidetag].map(function(sideobj) {
+		var func1 = function(sideobj) {
 				var starttag = sideobj.vertex0.getTag();
 				var endtag = sideobj.vertex1.getTag();
 				if(starttag in vertextag2sidestart) {
@@ -1368,14 +1376,19 @@ CSG.prototype = {
 				} else {
 					vertextag2sideend[endtag] = [sidetag];
 				}
-			});
+		};
+		for(var sidetag in sidemap) {
+			sidemapisempty = false;
+			sidestocheck[sidetag] = true;
+			sidemap[sidetag].map(func1);
 		}
 
 		if(!sidemapisempty) {
 			// make a copy of the polygons array, since we are going to modify it:
 			var polygons = csg.polygons.slice(0);
+			var sideobj;
 
-			function addSide (vertex0, vertex1, polygonindex) {
+			var addSide = function (vertex0, vertex1, polygonindex) {
 				var starttag = vertex0.getTag();
 				var endtag = vertex1.getTag();
 				if(starttag == endtag) throw new Error("Assertion failed");
@@ -1410,9 +1423,9 @@ CSG.prototype = {
 					vertextag2sideend[endtag] = [newsidetag];
 				}
 				return newsidetag;
-			}
+			};
 
-			function deleteSide (vertex0, vertex1, polygonindex) {
+			var deleteSide = function (vertex0, vertex1, polygonindex) {
 				var starttag = vertex0.getTag();
 				var endtag = vertex1.getTag();
 				var sidetag = starttag + "/" + endtag;
@@ -1421,7 +1434,7 @@ CSG.prototype = {
 				var idx = -1;
 				var sideobjs = sidemap[sidetag];
 				for(var i = 0; i < sideobjs.length; i++) {
-					var sideobj = sideobjs[i];
+					sideobj = sideobjs[i];
 					if(sideobj.vertex0 != vertex0) continue;
 					if(sideobj.vertex1 != vertex1) continue;
 					if(polygonindex !== null) {
@@ -1448,12 +1461,11 @@ CSG.prototype = {
 				if(vertextag2sideend[endtag].length === 0) {
 					delete vertextag2sideend[endtag];
 				}
-			}
-
+			};
 
 			while(true) {
-				var sidemapisempty = true;
-				for(var sidetag in sidemap) {
+				sidemapisempty = true;
+				for(sidetag in sidemap) {
 					sidemapisempty = false;
 					sidestocheck[sidetag] = true;
 				}
@@ -1461,7 +1473,7 @@ CSG.prototype = {
 				var donesomething = false;
 				while(true) {
 					var sidetagtocheck = null;
-					for(var sidetag in sidestocheck) {
+					for(sidetag in sidestocheck) {
 						sidetagtocheck = sidetag;
 						break;
 					}
@@ -1470,7 +1482,7 @@ CSG.prototype = {
 					if(sidetagtocheck in sidemap) {
 						var sideobjs = sidemap[sidetagtocheck];
 						if(sideobjs.length === 0) throw new Error("Assertion failed");
-						var sideobj = sideobjs[0];
+						sideobj = sideobjs[0];
 						for(var directionindex = 0; directionindex < 2; directionindex++) {
 							var startvertex = (directionindex === 0) ? sideobj.vertex0 : sideobj.vertex1;
 							var endvertex = (directionindex === 0) ? sideobj.vertex1 : sideobj.vertex0;
@@ -1514,8 +1526,8 @@ CSG.prototype = {
 										var distancesquared = closestpoint.distanceToSquared(endpos);
 										if(distancesquared < 1e-10) {
 											// Yes it's a t-junction! We need to split matchingside in two:
-											var polygonindex = matchingside.polygonindex;
-											var polygon = polygons[polygonindex];
+											polygonindex = matchingside.polygonindex;
+											polygon = polygons[polygonindex];
 											// find the index of startvertextag in polygon:
 											var insertionvertextag = matchingside.vertex1.getTag();
 											var insertionvertextagindex = -1;
@@ -1561,8 +1573,8 @@ CSG.prototype = {
 			newcsg.isRetesselated = true;
 			csg = newcsg;
 		} // if(!sidemapisempty)
-		var sidemapisempty = true;
-		for(var sidetag in sidemap) {
+		sidemapisempty = true;
+		for(sidetag in sidemap) {
 			sidemapisempty = false;
 			break;
 		}
@@ -1623,10 +1635,10 @@ CSG.parseOptionAsInt = function(options, optionname, defaultvalue) {
 
 CSG.parseOptionAsBool = function(options, optionname, defaultvalue) {
 	var result = CSG.parseOption(options, optionname, defaultvalue);
-	if(typeof(result) == "string") {
+	if(typeof(result) === "string") {
 		if(result == "true") result = true;
-		else if(result == "false") result = false;
-		else if(result == 0) result = false;
+		else if(result === "false") result = false;
+		else if(result === 0) result = false;
 	}
 	result = !! result;
 	return result;
@@ -2109,17 +2121,18 @@ CSG.solve2Linear = function(a, b, c, d, u, v) {
 //     new CSG.Vector3D(1, 2); // assumes z=0
 //     new CSG.Vector3D([1, 2]); // assumes z=0
 CSG.Vector3D = function(x, y, z) {
-	if(arguments.length == 3) {
-		this._x = parseFloat(x);
-		this._y = parseFloat(y);
-		this._z = parseFloat(z);
-	} else if(arguments.length == 2) {
-		this._x = parseFloat(x);
-		this._y = parseFloat(y);
-		this._z = 0;
-	} else {
-		var ok = true;
-		if(arguments.length == 1) {
+	switch(arguments.length) {
+		case 3:
+			this._x = parseFloat(x);
+			this._y = parseFloat(y);
+			this._z = parseFloat(z);
+			break;
+		case 2: 
+			this._x = parseFloat(x);
+			this._y = parseFloat(y);
+			this._z = 0;
+			break;
+		case 1: 
 			if(typeof(x) == "object") {
 				if(x instanceof CSG.Vector3D) {
 					this._x = x._x;
@@ -2130,40 +2143,38 @@ CSG.Vector3D = function(x, y, z) {
 					this._y = x._y;
 					this._z = 0;
 				} else if(x instanceof Array) {
-					if((x.length < 2) || (x.length > 3)) {
-						ok = false;
-					} else {
-						this._x = parseFloat(x[0]);
-						this._y = parseFloat(x[1]);
-						if(x.length == 3) {
+					switch(x.length) {
+						case 3:
+							this._x = parseFloat(x[0]);
+							this._y = parseFloat(x[1]);
 							this._z = parseFloat(x[2]);
-						} else {
+							break;
+						case 2: 
+							this._x = parseFloat(x[0]);
+							this._y = parseFloat(x[1]);
 							this._z = 0;
-						}
+							break;
+						default: 
+							throw new Error("Array must be of length 2 or 3");
 					}
 				} else if(('x' in x) && ('y' in x)) {
 					this._x = parseFloat(x.x);
 					this._y = parseFloat(x.y);
-					if('z' in x) {
-						this._z = parseFloat(x.z);
-					} else {
-						this._z = 0;
-					}
-				} else ok = false;
+					this._z = ('z' in x) ? parseFloat(x.z) : 0;
+				} else throw new Error("wrong arguments");
 			} else {
 				var v = parseFloat(x);
 				this._x = v;
 				this._y = v;
 				this._z = v;
 			}
-		} else ok = false;
-		if(ok) {
-			if((!CSG.IsFloat(this._x)) || (!CSG.IsFloat(this._y)) || (!CSG.IsFloat(this._z))) ok = false;
-		}
-		if(!ok) {
+
+			if((!CSG.IsFloat(this._x)) || (!CSG.IsFloat(this._y)) || (!CSG.IsFloat(this._z))) throw new Error("wrong arguments");
+			break;
+		default:
 			throw new Error("wrong arguments");
-		}
 	}
+   
 };
 
 CSG.Vector3D.prototype = {
@@ -2473,6 +2484,8 @@ CSG.Plane.prototype = {
 		var planenormal = this.normal;
 		var vertices = polygon.vertices;
 		var numvertices = vertices.length;
+	var t, isback;
+	var vertex, prevvertex;
 		if(polygon.plane.equals(this)) {
 			result.type = 0;
 		} else {
@@ -2483,15 +2496,15 @@ CSG.Plane.prototype = {
 			var vertexIsBack = [];
 			var MINEPS = -EPS;
 			for(var i = 0; i < numvertices; i++) {
-				var t = planenormal.dot(vertices[i].pos) - thisw;
-				var isback = (t < 0);
+				t = planenormal.dot(vertices[i].pos) - thisw;
+				isback = (t < 0);
 				vertexIsBack.push(isback);
 				if(t > EPS) hasfront = true;
 				if(t < MINEPS) hasback = true;
 			}
 			if((!hasfront) && (!hasback)) {
 				// all points coplanar
-				var t = planenormal.dot(polygon.plane.normal);
+				t = planenormal.dot(polygon.plane.normal);
 				result.type = (t >= 0) ? 0 : 1;
 			} else if(!hasback) {
 				result.type = 2;
@@ -2502,9 +2515,9 @@ CSG.Plane.prototype = {
 				result.type = 4;
 				var frontvertices = [],
 					backvertices = [];
-				var isback = vertexIsBack[0];
+				isback = vertexIsBack[0];
 				for(var vertexindex = 0; vertexindex < numvertices; vertexindex++) {
-					var vertex = vertices[vertexindex];
+					vertex = vertices[vertexindex];
 					var nextvertexindex = vertexindex + 1;
 					if(nextvertexindex >= numvertices) nextvertexindex = 0;
 					var nextisback = vertexIsBack[nextvertexindex];
@@ -2536,9 +2549,9 @@ CSG.Plane.prototype = {
 				// remove duplicate vertices:
 				var EPS_SQUARED = CSG.Plane.EPSILON * CSG.Plane.EPSILON;
 				if(backvertices.length >= 3) {
-					var prevvertex = backvertices[backvertices.length - 1];
-					for(var vertexindex = 0; vertexindex < backvertices.length; vertexindex++) {
-						var vertex = backvertices[vertexindex];
+					prevvertex = backvertices[backvertices.length - 1];
+					for(vertexindex = 0; vertexindex < backvertices.length; vertexindex++) {
+						vertex = backvertices[vertexindex];
 						if(vertex.pos.distanceToSquared(prevvertex.pos) < EPS_SQUARED) {
 							backvertices.splice(vertexindex, 1);
 							vertexindex--;
@@ -2547,9 +2560,9 @@ CSG.Plane.prototype = {
 					}
 				}
 				if(frontvertices.length >= 3) {
-					var prevvertex = frontvertices[frontvertices.length - 1];
-					for(var vertexindex = 0; vertexindex < frontvertices.length; vertexindex++) {
-						var vertex = frontvertices[vertexindex];
+					prevvertex = frontvertices[frontvertices.length - 1];
+					for(vertexindex = 0; vertexindex < frontvertices.length; vertexindex++) {
+						vertex = frontvertices[vertexindex];
 						if(vertex.pos.distanceToSquared(prevvertex.pos) < EPS_SQUARED) {
 							frontvertices.splice(vertexindex, 1);
 							vertexindex--;
@@ -2661,7 +2674,7 @@ CSG.Polygon.prototype = {
 	 * @return {CSG.Polygon} The current polygon
 	 */
 	setColor: function(red, green, blue, alpha) {
-		var color = red instanceof Array ? red : [red||0, green||0, blue||0, isNaN(alpha) ? 1. : alpha];
+		var color = red instanceof Array ? red : [red||0, green||0, blue||0, isNaN(alpha) ? 1.0 : alpha];
 		this.shared = new CSG.Polygon.Shared(color);
 		return this;
 	},
@@ -2822,7 +2835,7 @@ CSG.Polygon.prototype = {
 			flipped = null;
 
 		if (options) {
-			bLoop = Boolean(options['loop']);
+			bLoop = Boolean(options.loop);
 
 			if (options.numslices)
 				numSlices = options.numslices;
@@ -2835,8 +2848,8 @@ CSG.Polygon.prototype = {
 						[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]
 					]);
 			fnCallback = function(t, slice) {
-				return t == 0 || t == 1 ? square.translate([0,0,t]) : null;
-			}
+				return t === 0 || t === 1 ? square.translate([0,0,t]) : null;
+			};
 		}
 		for(var i = 0, iMax = numSlices - 1; i <= iMax; i++) {
 			csg = fnCallback.call(this, i / iMax, i);
@@ -2863,7 +2876,7 @@ CSG.Polygon.prototype = {
 		if (bLoop) {
 			var bSameTopBottom = bottom.vertices.length == top.vertices.length &&
 								bottom.vertices.every(function(v, index){
-									return v.pos.equals(top.vertices[index].pos)
+									return v.pos.equals(top.vertices[index].pos);
 								});
 			//if top and bottom are not the same -
 			//generate walls between them
@@ -2888,7 +2901,7 @@ CSG.Polygon.prototype = {
 		var bottomPoints = bottom.vertices.slice(0),//make a copy
 			topPoints = top.vertices.slice(0),//make a copy
 			color = top.shared || null;
-
+		var i, j;
 		//check if bottom perimeter is closed
 		if (!bottomPoints[0].pos.equals(bottomPoints[bottomPoints.length - 1].pos)) {
 			bottomPoints.push(bottomPoints[0]);
@@ -2911,16 +2924,16 @@ CSG.Polygon.prototype = {
 
 		var aMin = []; //indexes to start extra triangles (polygon with minimal square)
 		//init - we need exactly /iExtra/ small triangles
-		for (var i = Math.abs(iExtra); i > 0; i--) {
+		for (i = Math.abs(iExtra); i > 0; i--) {
 			aMin.push({len: Infinity, index: -1});
 		}
 
 		var len;
 		if (bMoreBottoms) {
-			for (var i = 0; i < iBotLen; i++) {
+			for (i = 0; i < iBotLen; i++) {
 				len = bottomPoints[i].pos.distanceToSquared(bottomPoints[i+1].pos);
 				//find the element to replace
-				for (var j = aMin.length - 1; j >= 0; j--) {
+				for (j = aMin.length - 1; j >= 0; j--) {
 					if (aMin[j].len > len) {
 						aMin[j].len = len;
 						aMin.index = j;
@@ -2929,10 +2942,10 @@ CSG.Polygon.prototype = {
 				}//for
 			}
 		} else if (bMoreTops) {
-			for (var i = 0; i < iTopLen; i++) {
+			for (i = 0; i < iTopLen; i++) {
 				len = topPoints[i].pos.distanceToSquared(topPoints[i+1].pos);
 				//find the element to replace
-				for (var j = aMin.length - 1; j >= 0; j--) {
+				for (j = aMin.length - 1; j >= 0; j--) {
 					if (aMin[j].len > len) {
 						aMin[j].len = len;
 						aMin.index = j;
@@ -2997,7 +3010,7 @@ CSG.Polygon.prototype = {
 					secondPoint, tpoint, bpoint, color
 				));
 				tpoint = secondPoint;
-			};
+			}
 		}
 		return walls;
 	}
@@ -3163,22 +3176,14 @@ CSG.PolygonTreeNode.prototype = {
 	},
 
 	getPolygons: function(result) {
-		var node = this, queue = [];
-
+		var node = this, queue = [], push = Array.prototype.push;
+		
 		do {
-            if(node.polygon) {
-                // the polygon hasn't been broken yet. We can ignore the children and return our polygon:
-                result.push(node.polygon);
-            } else {
-                // our polygon has been split up and broken, so gather all subpolygons from the children:
-                var childpolygons = [];
-                node.children.map(function(child) {
-                    queue.push(child);
-                });
-                childpolygons.map(function(p) {
-                    result.push(p);
-                });
-            }
+	  if(node.polygon) {
+		result.push(node.polygon);
+	  } else {
+		push.apply(queue, node.children);
+	  }
 
 			node = queue.pop();
 		} while(typeof(node) !== 'undefined');
@@ -3361,91 +3366,92 @@ CSG.Node.prototype = {
 	// clip polygontreenodes to our plane
 	// calls remove() for all clipped PolygonTreeNodes
 	clipPolygons: function(polygontreenodes, alsoRemovecoplanarFront) {
-        var args = {'node': this, 'polygontreenodes': polygontreenodes }
+		var args = {'node': this, 'polygontreenodes': polygontreenodes };
 		var node;
 		var queue = [];
-        // nsr1 
-        do { 
-            node = args.node;
-            polygontreenodes = args.polygontreenodes;
+	var i;
+		// nsr1 
+		do { 
+			node = args.node;
+			polygontreenodes = args.polygontreenodes;
 
-            // begin "function"
-            if(node.plane) {
-                var backnodes = [];
-                var frontnodes = [];
-                var coplanarfrontnodes = alsoRemovecoplanarFront ? backnodes : frontnodes;
-                var plane = node.plane;
-                var numpolygontreenodes = polygontreenodes.length;
-                for(i = 0; i < numpolygontreenodes; i++) {
-                    var node1 = polygontreenodes[i];
-                    if(!node1.isRemoved()) {
-                        node1.splitByPlane(plane, coplanarfrontnodes, backnodes, frontnodes, backnodes);
-                    }
-                }
-                
-                if(node.front && (frontnodes.length > 0)) {
-                    queue.push({'node': node.front, 'polygontreenodes': frontnodes});
-                }
-                var numbacknodes = backnodes.length;
-                if (node.back && (numbacknodes > 0)) {
-                    queue.push({'node': node.back, 'polygontreenodes': backnodes});
-                } else {
-                    // there's nothing behind this plane. Delete the nodes behind this plane:
-                    for(var i = 0; i < numbacknodes; i++) {
-                        backnodes[i].remove();
-                    }
-                }
-            }
-            args = queue.pop();
-        } while (typeof(args) !== 'undefined');
+			// begin "function"
+			if(node.plane) {
+				var backnodes = [];
+				var frontnodes = [];
+				var coplanarfrontnodes = alsoRemovecoplanarFront ? backnodes : frontnodes;
+				var plane = node.plane;
+				var numpolygontreenodes = polygontreenodes.length;
+				for(i = 0; i < numpolygontreenodes; i++) {
+					var node1 = polygontreenodes[i];
+					if(!node1.isRemoved()) {
+						node1.splitByPlane(plane, coplanarfrontnodes, backnodes, frontnodes, backnodes);
+					}
+				}
+				
+				if(node.front && (frontnodes.length > 0)) {
+					queue.push({'node': node.front, 'polygontreenodes': frontnodes});
+				}
+				var numbacknodes = backnodes.length;
+				if (node.back && (numbacknodes > 0)) {
+					queue.push({'node': node.back, 'polygontreenodes': backnodes});
+				} else {
+					// there's nothing behind this plane. Delete the nodes behind this plane:
+					for(i = 0; i < numbacknodes; i++) {
+						backnodes[i].remove();
+					}
+				}
+			}
+			args = queue.pop();
+		} while (typeof(args) !== 'undefined');
 	},
 
 	// Remove all polygons in this BSP tree that are inside the other BSP tree
 	// `tree`.
 	clipTo: function(tree, alsoRemovecoplanarFront) {
-        var node = this, queue = [];
-        do { 
-            if(node.polygontreenodes.length > 0) {
-                tree.rootnode.clipPolygons(node.polygontreenodes, alsoRemovecoplanarFront);
-            }
-            if(node.front) queue.push(node.front);
-            if(node.back) queue.push(node.back);
-            node = queue.pop();
-        } while(typeof(node) !== 'undefined');
+		var node = this, queue = [];
+		do { 
+			if(node.polygontreenodes.length > 0) {
+				tree.rootnode.clipPolygons(node.polygontreenodes, alsoRemovecoplanarFront);
+			}
+			if(node.front) queue.push(node.front);
+			if(node.back) queue.push(node.back);
+			node = queue.pop();
+		} while(typeof(node) !== 'undefined');
 	},
 
 	addPolygonTreeNodes: function(polygontreenodes) {
-        var args = {'node': this, 'polygontreenodes': polygontreenodes };
+		var args = {'node': this, 'polygontreenodes': polygontreenodes };
 		var node;
 		var queue = [];
-        do { 
-            node = args.node;
-            polygontreenodes = args.polygontreenodes;
+		do { 
+			node = args.node;
+			polygontreenodes = args.polygontreenodes;
 
-            if(polygontreenodes.length === 0) continue;
-            var _this = node;
-            if(!node.plane) {
-                var bestplane = polygontreenodes[0].getPolygon().plane;
-                node.plane = bestplane;
-            }
-            var frontnodes = [];
-            var backnodes = [];
-            
-            for (var i = 0, n = polygontreenodes.length ; i < n; ++i) {
-                polygontreenodes[i].splitByPlane(_this.plane, _this.polygontreenodes, backnodes, frontnodes, backnodes);
-            }
-            
-            if(frontnodes.length > 0) {
-                if(!node.front) node.front = new CSG.Node(node);
-                queue.push({'node': node.front, 'polygontreenodes': frontnodes});
-            }
-            if(backnodes.length > 0) {
-                if(!node.back) node.back = new CSG.Node(node);
-                queue.push({'node': node.back, 'polygontreenodes': backnodes});
-            }
+			if(polygontreenodes.length === 0) continue;
+			var _this = node;
+			if(!node.plane) {
+				var bestplane = polygontreenodes[0].getPolygon().plane;
+				node.plane = bestplane;
+			}
+			var frontnodes = [];
+			var backnodes = [];
+			
+			for (var i = 0, n = polygontreenodes.length ; i < n; ++i) {
+				polygontreenodes[i].splitByPlane(_this.plane, _this.polygontreenodes, backnodes, frontnodes, backnodes);
+			}
+			
+			if(frontnodes.length > 0) {
+				if(!node.front) node.front = new CSG.Node(node);
+				queue.push({'node': node.front, 'polygontreenodes': frontnodes});
+			}
+			if(backnodes.length > 0) {
+				if(!node.back) node.back = new CSG.Node(node);
+				queue.push({'node': node.back, 'polygontreenodes': backnodes});
+			}
 
-            args = queue.pop();
-        } while (typeof(args) !== 'undefined');
+			args = queue.pop();
+		} while (typeof(args) !== 'undefined');
 	},
 
 	getParentPlaneNormals: function(normals, maxdepth) {
@@ -3737,12 +3743,12 @@ CSG.Matrix4x4.scaling = function(v) {
 // # class Vector2D:
 // Represents a 2 element vector
 CSG.Vector2D = function(x, y) {
-	if(arguments.length == 2) {
-		this._x = parseFloat(x);
-		this._y = parseFloat(y);
-	} else {
-		var ok = true;
-		if(arguments.length == 1) {
+	switch(arguments.length) {
+		case 2: 
+			this._x = parseFloat(x);
+			this._y = parseFloat(y);
+			break;
+		case 1:
 			if(typeof(x) == "object") {
 				if(x instanceof CSG.Vector2D) {
 					this._x = x._x;
@@ -3753,19 +3759,18 @@ CSG.Vector2D = function(x, y) {
 				} else if(('x' in x) && ('y' in x)) {
 					this._x = parseFloat(x.x);
 					this._y = parseFloat(x.y);
-				} else ok = false;
+				} else {
+					throw new Error("wrong arguments");
+				}
 			} else {
 				var v = parseFloat(x);
 				this._x = v;
 				this._y = v;
 			}
-		} else ok = false;
-		if(ok) {
-			if((!CSG.IsFloat(this._x)) || (!CSG.IsFloat(this._y))) ok = false;
-		}
-		if(!ok) {
+			if((!CSG.IsFloat(this._x)) || (!CSG.IsFloat(this._y))) throw new Error("wrong arguments");
+			break;
+		default: 
 			throw new Error("wrong arguments");
-		}
 	}
 };
 
@@ -4018,19 +4023,19 @@ CSG.Line3D.fromPlanes = function(p1, p2) {
 	var mabsx = Math.abs(direction.x);
 	var mabsy = Math.abs(direction.y);
 	var mabsz = Math.abs(direction.z);
-	var origin;
+	var origin, r;
 	if((mabsx >= mabsy) && (mabsx >= mabsz)) {
 		// direction vector is mostly pointing towards x
 		// find a point p for which x is zero:
-		var r = CSG.solve2Linear(p1.normal.y, p1.normal.z, p2.normal.y, p2.normal.z, p1.w, p2.w);
+		r = CSG.solve2Linear(p1.normal.y, p1.normal.z, p2.normal.y, p2.normal.z, p1.w, p2.w);
 		origin = new CSG.Vector3D(0, r[0], r[1]);
 	} else if((mabsy >= mabsx) && (mabsy >= mabsz)) {
 		// find a point p for which y is zero:
-		var r = CSG.solve2Linear(p1.normal.x, p1.normal.z, p2.normal.x, p2.normal.z, p1.w, p2.w);
+		r = CSG.solve2Linear(p1.normal.x, p1.normal.z, p2.normal.x, p2.normal.z, p1.w, p2.w);
 		origin = new CSG.Vector3D(r[0], 0, r[1]);
 	} else {
 		// find a point p for which z is zero:
-		var r = CSG.solve2Linear(p1.normal.x, p1.normal.y, p2.normal.x, p2.normal.y, p1.w, p2.w);
+		r = CSG.solve2Linear(p1.normal.x, p1.normal.y, p2.normal.x, p2.normal.y, p1.w, p2.w);
 		origin = new CSG.Vector3D(r[0], r[1], 0);
 	}
 	return new CSG.Line3D(origin, direction);
@@ -4046,7 +4051,7 @@ CSG.Line3D.prototype = {
 		return point;
 	},
 
-	clone: function(line) {
+	clone: function() {
 		return new CSG.Line3D(this.point.clone(), this.direction.clone());
 	},
 
@@ -4206,9 +4211,10 @@ CSG.interpolateBetween2DPointsForY = function(point1, point2, y) {
 // this file.
 CSG.reTesselateCoplanarPolygons = function(sourcepolygons, destpolygons) {
 	var EPS = 1e-5;
-
+  var i, ii;
 	var numpolygons = sourcepolygons.length;
-	if(numpolygons > 0) {
+
+  if(numpolygons > 0) {
 		var plane = sourcepolygons[0].plane;
 		var shared = sourcepolygons[0].shared;
 		var orthobasis = new CSG.OrthoNormalBasis(plane);
@@ -4217,21 +4223,25 @@ CSG.reTesselateCoplanarPolygons = function(sourcepolygons, destpolygons) {
 		var topy2polygonindexes = {};
 		var ycoordinatetopolygonindexes = {};
 
-		var xcoordinatebins = {};
+		//var xcoordinatebins = {};
 		var ycoordinatebins = {};
 
 		// convert all polygon vertices to 2D
 		// Make a list of all encountered y coordinates
 		// And build a map of all polygons that have a vertex at a certain y coordinate:
 		var ycoordinateBinningFactor = 1.0 / EPS * 10;
-		for(var polygonindex = 0; polygonindex < numpolygons; polygonindex++) {
+		var vertices2d, numvertices, nextleftvertexindex, nextrightvertexindex;
+		var activepolygon, polygonindex, prevpolygon, thispolygon;
+		var d1, d2;
+	
+		for(polygonindex = 0; polygonindex < numpolygons; polygonindex++) {
 			var poly3d = sourcepolygons[polygonindex];
-			var vertices2d = [];
-			var numvertices = poly3d.vertices.length;
+			vertices2d = [];
+			numvertices = poly3d.vertices.length;
 			var minindex = -1;
 			if(numvertices > 0) {
 				var miny, maxy, maxindex;
-				for(var i = 0; i < numvertices; i++) {
+				for(i = 0; i < numvertices; i++) {
 					var pos2d = orthobasis.to2D(poly3d.vertices[i].pos);
 					// perform binning of y coordinates: If we have multiple vertices very
 					// close to each other, give them the same y coordinate:
@@ -4280,7 +4290,8 @@ CSG.reTesselateCoplanarPolygons = function(sourcepolygons, destpolygons) {
 			polygontopvertexindexes.push(minindex);
 		}
 		var ycoordinates = [];
-		for(var ycoordinate in ycoordinatetopolygonindexes) ycoordinates.push(ycoordinate);
+		var ycoordinate;
+		for(ycoordinate in ycoordinatetopolygonindexes) ycoordinates.push(ycoordinate);
 		ycoordinates.sort(fnNumberSort);
 
 		// Now we will iterate over all y coordinates, from lowest to highest y coordinate
@@ -4299,7 +4310,7 @@ CSG.reTesselateCoplanarPolygons = function(sourcepolygons, destpolygons) {
 		for(var yindex = 0; yindex < ycoordinates.length; yindex++) {
 			var newoutpolygonrow = [];
 			var ycoordinate_as_string = ycoordinates[yindex];
-			var ycoordinate = Number(ycoordinate_as_string);
+			ycoordinate = Number(ycoordinate_as_string);
 
 			// update activepolygons for this y coordinate:
 			// - Remove any polygons that end at this y coordinate
@@ -4308,22 +4319,22 @@ CSG.reTesselateCoplanarPolygons = function(sourcepolygons, destpolygons) {
 			// Iterate over all polygons that have a corner at this y coordinate:
 			var polygonindexeswithcorner = ycoordinatetopolygonindexes[ycoordinate_as_string];
 			for(var activepolygonindex = 0; activepolygonindex < activepolygons.length; ++activepolygonindex) {
-				var activepolygon = activepolygons[activepolygonindex];
-				var polygonindex = activepolygon.polygonindex;
+				activepolygon = activepolygons[activepolygonindex];
+				polygonindex = activepolygon.polygonindex;
 				if(polygonindexeswithcorner[polygonindex]) {
 					// this active polygon has a corner at this y coordinate:
-					var vertices2d = polygonvertices2d[polygonindex];
-					var numvertices = vertices2d.length;
+					vertices2d = polygonvertices2d[polygonindex];
+					numvertices = vertices2d.length;
 					var newleftvertexindex = activepolygon.leftvertexindex;
 					var newrightvertexindex = activepolygon.rightvertexindex;
 					// See if we need to increase leftvertexindex or decrease rightvertexindex:
 					while(true) {
-						var nextleftvertexindex = newleftvertexindex + 1;
+						nextleftvertexindex = newleftvertexindex + 1;
 						if(nextleftvertexindex >= numvertices) nextleftvertexindex = 0;
 						if(vertices2d[nextleftvertexindex].y != ycoordinate) break;
 						newleftvertexindex = nextleftvertexindex;
 					}
-					var nextrightvertexindex = newrightvertexindex - 1;
+					nextrightvertexindex = newrightvertexindex - 1;
 					if(nextrightvertexindex < 0) nextrightvertexindex = numvertices - 1;
 					if(vertices2d[nextrightvertexindex].y == ycoordinate) {
 						newrightvertexindex = nextrightvertexindex;
@@ -4338,10 +4349,10 @@ CSG.reTesselateCoplanarPolygons = function(sourcepolygons, destpolygons) {
 						activepolygon.rightvertexindex = newrightvertexindex;
 						activepolygon.topleft = vertices2d[newleftvertexindex];
 						activepolygon.topright = vertices2d[newrightvertexindex];
-						var nextleftvertexindex = newleftvertexindex + 1;
+						nextleftvertexindex = newleftvertexindex + 1;
 						if(nextleftvertexindex >= numvertices) nextleftvertexindex = 0;
 						activepolygon.bottomleft = vertices2d[nextleftvertexindex];
-						var nextrightvertexindex = newrightvertexindex - 1;
+						nextrightvertexindex = newrightvertexindex - 1;
 						if(nextrightvertexindex < 0) nextrightvertexindex = numvertices - 1;
 						activepolygon.bottomright = vertices2d[nextrightvertexindex];
 					}
@@ -4352,22 +4363,30 @@ CSG.reTesselateCoplanarPolygons = function(sourcepolygons, destpolygons) {
 				// last row, all polygons must be finished here:
 				activepolygons = [];
 				nextycoordinate = null;
-			} else // yindex < ycoordinates.length-1
-			{
-				nextycoordinate = Number(ycoordinates[yindex + 1]);
+	  } else { // yindex < ycoordinates.length-1
+			  nextycoordinate = Number(ycoordinates[yindex + 1]);
 				var middleycoordinate = 0.5 * (ycoordinate + nextycoordinate);
+		var func1 = function(el1, el2) {
+						var x1 = CSG.interpolateBetween2DPointsForY(
+									el1.topleft, el1.bottomleft, middleycoordinate);
+						var x2 = CSG.interpolateBetween2DPointsForY(
+									el2.topleft, el2.bottomleft, middleycoordinate);
+						if(x1 > x2) return 1;
+						if(x1 < x2) return -1;
+						return 0;
+				};
 				// update activepolygons by adding any polygons that start here:
 				var startingpolygonindexes = topy2polygonindexes[ycoordinate_as_string];
 				for(var polygonindex_key in startingpolygonindexes) {
-					var polygonindex = startingpolygonindexes[polygonindex_key];
-					var vertices2d = polygonvertices2d[polygonindex];
-					var numvertices = vertices2d.length;
+					polygonindex = startingpolygonindexes[polygonindex_key];
+					vertices2d = polygonvertices2d[polygonindex];
+					numvertices = vertices2d.length;
 					var topvertexindex = polygontopvertexindexes[polygonindex];
 					// the top of the polygon may be a horizontal line. In that case topvertexindex can point to any point on this line.
 					// Find the left and right topmost vertices which have the current y coordinate:
-					var topleftvertexindex = topvertexindex;
+				  var topleftvertexindex = topvertexindex;
 					while(true) {
-						var i = topleftvertexindex + 1;
+						i = topleftvertexindex + 1;
 						if(i >= numvertices) i = 0;
 						if(vertices2d[i].y != ycoordinate) break;
 						if(i == topvertexindex) break; // should not happen, but just to prevent endless loops
@@ -4375,15 +4394,15 @@ CSG.reTesselateCoplanarPolygons = function(sourcepolygons, destpolygons) {
 					}
 					var toprightvertexindex = topvertexindex;
 					while(true) {
-						var i = toprightvertexindex - 1;
+						i = toprightvertexindex - 1;
 						if(i < 0) i = numvertices - 1;
 						if(vertices2d[i].y != ycoordinate) break;
 						if(i == topleftvertexindex) break; // should not happen, but just to prevent endless loops
 						toprightvertexindex = i;
 					}
-					var nextleftvertexindex = topleftvertexindex + 1;
+					nextleftvertexindex = topleftvertexindex + 1;
 					if(nextleftvertexindex >= numvertices) nextleftvertexindex = 0;
-					var nextrightvertexindex = toprightvertexindex - 1;
+					nextrightvertexindex = toprightvertexindex - 1;
 					if(nextrightvertexindex < 0) nextrightvertexindex = numvertices - 1;
 					var newactivepolygon = {
 						polygonindex: polygonindex,
@@ -4394,15 +4413,7 @@ CSG.reTesselateCoplanarPolygons = function(sourcepolygons, destpolygons) {
 						bottomleft: vertices2d[nextleftvertexindex],
 						bottomright: vertices2d[nextrightvertexindex],
 					};
-					insertSorted(activepolygons, newactivepolygon, function(el1, el2) {
-						var x1 = CSG.interpolateBetween2DPointsForY(
-									el1.topleft, el1.bottomleft, middleycoordinate);
-						var x2 = CSG.interpolateBetween2DPointsForY(
-									el2.topleft, el2.bottomleft, middleycoordinate);
-						if(x1 > x2) return 1;
-						if(x1 < x2) return -1;
-						return 0;
-					});
+					insertSorted(activepolygons, newactivepolygon, func1);
 				} // for(var polygonindex in startingpolygonindexes)
 			} //  yindex < ycoordinates.length-1
 			//if( (yindex == ycoordinates.length-1) || (nextycoordinate - ycoordinate > EPS) )
@@ -4410,10 +4421,10 @@ CSG.reTesselateCoplanarPolygons = function(sourcepolygons, destpolygons) {
 				// Now activepolygons is up to date
 				// Build the output polygons for the next row in newoutpolygonrow:
 				for(var activepolygon_key in activepolygons) {
-					var activepolygon = activepolygons[activepolygon_key];
-					var polygonindex = activepolygon.polygonindex;
-					var vertices2d = polygonvertices2d[polygonindex];
-					var numvertices = vertices2d.length;
+					activepolygon = activepolygons[activepolygon_key];
+					polygonindex = activepolygon.polygonindex;
+					vertices2d = polygonvertices2d[polygonindex];
+					numvertices = vertices2d.length;
 
 					var x = CSG.interpolateBetween2DPointsForY(activepolygon.topleft, activepolygon.bottomleft, ycoordinate);
 					var topleft = new CSG.Vector2D(x, ycoordinate);
@@ -4433,8 +4444,8 @@ CSG.reTesselateCoplanarPolygons = function(sourcepolygons, destpolygons) {
 					};
 					if(newoutpolygonrow.length > 0) {
 						var prevoutpolygon = newoutpolygonrow[newoutpolygonrow.length - 1];
-						var d1 = outpolygon.topleft.distanceTo(prevoutpolygon.topright);
-						var d2 = outpolygon.bottomleft.distanceTo(prevoutpolygon.bottomright);
+						d1 = outpolygon.topleft.distanceTo(prevoutpolygon.topright);
+						d2 = outpolygon.bottomleft.distanceTo(prevoutpolygon.bottomright);
 						if((d1 < EPS) && (d2 < EPS)) {
 							// we can join this polygon with the one to the left:
 							outpolygon.topleft = prevoutpolygon.topleft;
@@ -4449,21 +4460,21 @@ CSG.reTesselateCoplanarPolygons = function(sourcepolygons, destpolygons) {
 					// try to match the new polygons against the previous row:
 					var prevcontinuedindexes = {};
 					var matchedindexes = {};
-					for(var i = 0; i < newoutpolygonrow.length; i++) {
-						var thispolygon = newoutpolygonrow[i];
-						for(var ii = 0; ii < prevoutpolygonrow.length; ii++) {
+					for(i = 0; i < newoutpolygonrow.length; i++) {
+						thispolygon = newoutpolygonrow[i];
+						for(ii = 0; ii < prevoutpolygonrow.length; ii++) {
 							if(!matchedindexes[ii]) // not already processed?
 							{
 								// We have a match if the sidelines are equal or if the top coordinates
 								// are on the sidelines of the previous polygon
-								var prevpolygon = prevoutpolygonrow[ii];
+								prevpolygon = prevoutpolygonrow[ii];
 								if(prevpolygon.bottomleft.distanceTo(thispolygon.topleft) < EPS) {
 									if(prevpolygon.bottomright.distanceTo(thispolygon.topright) < EPS) {
 										// Yes, the top of this polygon matches the bottom of the previous:
 										matchedindexes[ii] = true;
 										// Now check if the joined polygon would remain convex:
-										var d1 = thispolygon.leftline.direction().x - prevpolygon.leftline.direction().x;
-										var d2 = thispolygon.rightline.direction().x - prevpolygon.rightline.direction().x;
+										d1 = thispolygon.leftline.direction().x - prevpolygon.leftline.direction().x;
+										d2 = thispolygon.rightline.direction().x - prevpolygon.rightline.direction().x;
 										var leftlinecontinues = Math.abs(d1) < EPS;
 										var rightlinecontinues = Math.abs(d2) < EPS;
 										var leftlineisconvex = leftlinecontinues || (d1 >= 0);
@@ -4482,11 +4493,11 @@ CSG.reTesselateCoplanarPolygons = function(sourcepolygons, destpolygons) {
 							} // if(!prevcontinuedindexes[ii])
 						} // for ii
 					} // for i
-					for(var ii = 0; ii < prevoutpolygonrow.length; ii++) {
+					for(ii = 0; ii < prevoutpolygonrow.length; ii++) {
 						if(!prevcontinuedindexes[ii]) {
 							// polygon ends here
 							// Finish the polygon with the last point(s):
-							var prevpolygon = prevoutpolygonrow[ii];
+							prevpolygon = prevoutpolygonrow[ii];
 							prevpolygon.outpolygon.rightpoints.push(prevpolygon.bottomright);
 							if(prevpolygon.bottomright.distanceTo(prevpolygon.bottomleft) > EPS) {
 								// polygon ends with a horizontal line:
@@ -4506,8 +4517,8 @@ CSG.reTesselateCoplanarPolygons = function(sourcepolygons, destpolygons) {
 						}
 					}
 				} // if(yindex > 0)
-				for(var i = 0; i < newoutpolygonrow.length; i++) {
-					var thispolygon = newoutpolygonrow[i];
+				for(i = 0; i < newoutpolygonrow.length; i++) {
+					thispolygon = newoutpolygonrow[i];
 					if(!thispolygon.outpolygon) {
 						// polygon starts here:
 						thispolygon.outpolygon = {
@@ -4613,7 +4624,6 @@ CSG.fuzzyFactory.prototype = {
 	lookupKeySetForDimension: function(dimension, value) {
 		var result;
 		var elementLookupTable = this.lookuptable[dimension];
-		var valueMultiplied = value * this.multiplier;
 		var valueQuantized = Math.floor(value * this.multiplier);
 		if(valueQuantized in elementLookupTable) {
 			result = elementLookupTable[valueQuantized];
@@ -4680,7 +4690,7 @@ CSG.fuzzyCSGFactory.prototype = {
 
 	getVertex: function(sourcevertex) {
 		var elements = [sourcevertex.pos._x, sourcevertex.pos._y, sourcevertex.pos._z];
-		var result = this.vertexfactory.lookupOrCreate(elements, function(els) {
+		var result = this.vertexfactory.lookupOrCreate(elements, function() {
 			return sourcevertex;
 		});
 		return result;
@@ -4688,7 +4698,7 @@ CSG.fuzzyCSGFactory.prototype = {
 
 	getPlane: function(sourceplane) {
 		var elements = [sourceplane.normal._x, sourceplane.normal._y, sourceplane.normal._z, sourceplane.w];
-		var result = this.planefactory.lookupOrCreate(elements, function(els) {
+		var result = this.planefactory.lookupOrCreate(elements, function() {
 			return sourceplane;
 		});
 		return result;
@@ -5421,11 +5431,11 @@ CAG.prototype = {
 	},
 
    center: function(c) {
-      if(!c.length) c = [c,c];
-      var b = this.getBounds();
-      return this.translate([
-         c[0]?-(b[1].x-b[0].x)/2-b[0].x:0,
-         c[1]?-(b[1].y-b[0].y)/2-b[0].y:0]);
+	  if(!c.length) c = [c,c];
+	  var b = this.getBounds();
+	  return this.translate([
+		 c[0]?-(b[1].x-b[0].x)/2-b[0].x:0,
+		 c[1]?-(b[1].y-b[0].y)/2-b[0].y:0]);
    },
 
 	isSelfIntersecting: function() {
@@ -5545,7 +5555,7 @@ CAG.prototype = {
 	// twiststeps determines the resolution of the twist (should be >= 1)
 	// returns a CSG object
 	extrude: function(options) {
-		if(this.sides.length == 0) {
+		if(this.sides.length === 0) {
 		// empty!
 		return new CSG();
 	}
@@ -5553,17 +5563,22 @@ CAG.prototype = {
 	var twistangle = CSG.parseOptionAsFloat(options, "twistangle", 0);
 	var twiststeps = CSG.parseOptionAsInt(options, "twiststeps", 10);
 
-	if(twistangle == 0) twiststeps = 1;
+	if(twistangle === 0) twiststeps = 1;
 	if(twiststeps < 1) twiststeps = 1;
 
 	var newpolygons = [];
 	var prevtransformedcag;
 	var prevstepz;
+	var func1 = function(polygon){
+	  if(Math.abs(polygon.plane.normal.z) > 0.99) {
+		newpolygons.push(polygon);
+	  }
+	};
 	for(var step=0; step <= twiststeps; step++) {
 		var stepfraction = step / twiststeps;
 		var transformedcag = this;
 		var angle = twistangle * stepfraction;
-		if(angle != 0) {
+		if(angle !== 0) {
 			transformedcag = transformedcag.rotateZ(angle);
 		}
 		var translatevector = new CSG.Vector2D(offsetvector.x, offsetvector.y).times(stepfraction);
@@ -5572,7 +5587,7 @@ CAG.prototype = {
 		bounds[0] = bounds[0].minus(new CSG.Vector2D(1,1));
 		bounds[1] = bounds[1].plus(new CSG.Vector2D(1,1));
 		var stepz = offsetvector.z * stepfraction;
-		if( (step == 0) || (step == twiststeps) ) {
+		if( (step === 0) || (step == twiststeps) ) {
 			// bottom or top face:
 			var csgshell = transformedcag.toCSG(stepz-1, stepz+1);
 			var csgplane = CSG.fromPolygons([new CSG.Polygon([
@@ -5581,18 +5596,14 @@ CAG.prototype = {
 				new CSG.Vertex(new CSG.Vector3D(bounds[1].x, bounds[1].y, stepz)),
 				new CSG.Vertex(new CSG.Vector3D(bounds[0].x, bounds[1].y, stepz))
 			])]);
-			var flip = (step == 0);
+			var flip = (step === 0);
 			if(offsetvector.z < 0) flip = !flip;
 			if(flip) {
 				csgplane = csgplane.inverse();
 			}
 			csgplane = csgplane.intersect(csgshell);
 			// only keep the polygons in the z plane:
-			csgplane.polygons.map(function(polygon){
-				if(Math.abs(polygon.plane.normal.z) > 0.99) {
-					newpolygons.push(polygon);
-				}
-			});
+			csgplane.polygons.map(func1);
 		}
 		if(step > 0) {
 			var numsides = transformedcag.sides.length;
@@ -5935,7 +5946,7 @@ CAG.fuzzyCAGFactory = function() {
 CAG.fuzzyCAGFactory.prototype = {
 	getVertex: function(sourcevertex) {
 		var elements = [sourcevertex.pos._x, sourcevertex.pos._y];
-		var result = this.vertexfactory.lookupOrCreate(elements, function(els) {
+		var result = this.vertexfactory.lookupOrCreate(elements, function() {
 			return sourcevertex;
 		});
 		return result;
