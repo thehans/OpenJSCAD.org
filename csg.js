@@ -3376,10 +3376,10 @@ CSG.Node.prototype = {
                 var coplanarfrontnodes = alsoRemovecoplanarFront ? backnodes : frontnodes;
                 var plane = node.plane;
                 var numpolygontreenodes = polygontreenodes.length;
-                for(var i = 0; i < numpolygontreenodes; i++) {
-                    var node = polygontreenodes[i];
-                    if(!node.isRemoved()) {
-                        node.splitByPlane(plane, coplanarfrontnodes, backnodes, frontnodes, backnodes);
+                for(i = 0; i < numpolygontreenodes; i++) {
+                    var node1 = polygontreenodes[i];
+                    if(!node1.isRemoved()) {
+                        node1.splitByPlane(plane, coplanarfrontnodes, backnodes, frontnodes, backnodes);
                     }
                 }
                 
